@@ -14,12 +14,7 @@ public class ResourceSorter : MonoBehaviour
 
     public Queue<Resource> SortByDistance(List<Resource> resources)
     {
-        foreach (Resource resource in resources)
-        {
-            _distanceMeter.MeasureDistance(resource);
-        }
-
-        List<Resource> tempResult = resources.OrderBy(p => p.DistanceFromBase).ToList();
+        List<Resource> tempResult = resources.OrderBy(p => _distanceMeter.MeasureDistance(p)).ToList();
         Queue<Resource> result = new Queue<Resource>();
 
         foreach (Resource resource in tempResult)

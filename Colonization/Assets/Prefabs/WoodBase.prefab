@@ -230,6 +230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36c85fccfc035c54ebda62f9cbb87f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _base: {fileID: 6608564245453949767}
 --- !u!1 &2787641823586330597
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,7 +599,6 @@ MonoBehaviour:
   _resource: {fileID: 4048501260460177529, guid: dc9cb61c319913447978d51800cba663, type: 3}
   _startWorkersAmount: 3
   _resourceStorage: {fileID: 399798861308474886}
-  _workerCost: 3
 --- !u!114 &6621955648016365490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,8 +611,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fac69474c603d3748879d0c5df04eb91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnPosition: {fileID: 4596322443476140721}
-  _prefab: {fileID: 3928506545075080314, guid: 99542abe7d3c9ea4e987eaa2956b71dc, type: 3}
+  SpawnPosition: {fileID: 4596322443476140721}
+  Prefab: {fileID: 3928506545075080314, guid: 99542abe7d3c9ea4e987eaa2956b71dc, type: 3}
   _poolCapacity: 10
 --- !u!114 &7191729493800443810
 MonoBehaviour:
@@ -786,3 +786,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b1028d7ebece6f49aa3a850d2e4323f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _resourceStorage: {fileID: 7191729493800443810}

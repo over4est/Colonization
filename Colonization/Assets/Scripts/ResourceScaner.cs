@@ -17,9 +17,7 @@ public class ResourceScaner : MonoBehaviour
         {
             foreach (Collider collider in tempResults)
             {
-                Resource currentResource = collider.GetComponent<Resource>();
-
-                if (currentResource.GetType() == resourceSample.GetType())
+                if (collider.TryGetComponent(out Resource currentResource) && currentResource.GetType() == resourceSample.GetType())
                 {
                     results.Add(currentResource);
                 }
@@ -27,25 +25,5 @@ public class ResourceScaner : MonoBehaviour
         }
 
         return results.Count > 0;
-    }
-
-    public Resource Scan(Vector3 resourcePosition)
-    {
-        Collider[] tempResults = Physics.OverlapSphere(resourcePosition, _scanDistance, _layer.value);
-
-        if (tempResults.Length > 0)
-        {
-            foreach(Collider collider in tempResults)
-            {
-                Resource resource = collider.GetComponent<Resource>();
-
-                if (resource != null && collider.transform.position == resourcePosition)
-                {
-                    return resource;
-                }
-            }
-        }
-
-        return null;
     }
 }

@@ -9,7 +9,7 @@ public class Worker : MonoBehaviour
 
     private RandomPositioner _randomPositioner;
     private Vector3 _currentBaseStorage;
-    private Vector3 _currentResource;
+    private Resource _currentTargetResource;
     private WorkerMover _mover;
     private WorkerStateMachine _machine;
     private Resource _resourceInHand;
@@ -23,9 +23,9 @@ public class Worker : MonoBehaviour
 
     private void Awake()
     {
+        _machine = new WorkerStateMachine(this);
         _distanceMeter = GetComponent<DistanceMeter>();
         _randomPositioner = GetComponent<RandomPositioner>();
-        _machine = new WorkerStateMachine(this);
         _mover = GetComponent<WorkerMover>();
         _resourcePicker = GetComponent<ResourcePicker>();
     }
@@ -40,9 +40,9 @@ public class Worker : MonoBehaviour
         _currentBaseStorage = position;
     }
 
-    public void SetResourcePosition(Vector3 position)
+    public void SetResource(Resource resource)
     {
-        _currentResource = position;
+        _currentTargetResource = resource;
     }
 
     public void WaitForCommand()
@@ -55,12 +55,12 @@ public class Worker : MonoBehaviour
 
     public void MoveToResource()
     {
-        float sqrDistance = _distanceMeter.GetSqrDistance(_currentResource);
+        float sqrDistance = _distanceMeter.GetSqrDistance(_currentTargetResource.transform.position);
 
         if (sqrDistance < _pickUpDistance)
-            PickUpResource(_currentResource);
+            _resourceInHand = _resourcePicker.PickUpResource(_currentTargetResource);
         else
-            _mover.Move(_currentResource);
+            _mover.Move(_currentTargetResource.transform.position);
     }
 
     public void MoveToStorage()
@@ -80,10 +80,5 @@ public class Worker : MonoBehaviour
     public void SetState(WorkerState state)
     {
         _machine.SetState(state);
-    }
-
-    private void PickUpResource(Vector3 position)
-    {
-        _resourceInHand = _resourcePicker.PickUpResource(position);
     }
 }

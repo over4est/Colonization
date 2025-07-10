@@ -11,12 +11,12 @@ public class SmoothZoomer : MonoBehaviour
     [SerializeField] private float _zoomSpeed;
 
     private InputReader _input;
-    private CinemachineVirtualCamera _camera;
+    private CinemachineVirtualCamera _virtualCamera;
     private Coroutine _coroutine;
 
     private void Awake()
     {
-        _camera = GetComponent<CinemachineVirtualCamera>();
+        _virtualCamera = GetComponent<CinemachineVirtualCamera>();
         _input = GetComponent<InputReader>();
     }
 
@@ -35,7 +35,7 @@ public class SmoothZoomer : MonoBehaviour
         if (_coroutine != null)
             StopCoroutine(_coroutine);
 
-        float changedValue = _camera.m_Lens.FieldOfView - value * _zoomSpeed;
+        float changedValue = _virtualCamera.m_Lens.FieldOfView - value * _zoomSpeed;
         float targetFOV = Mathf.Clamp(changedValue, _minFOV, _maxFOV);
 
         _coroutine = StartCoroutine(SmoothZoom(targetFOV));
@@ -44,15 +44,15 @@ public class SmoothZoomer : MonoBehaviour
     private IEnumerator SmoothZoom(float targetFOV)
     {
         float elapsedTime = 0f;
-        float currentFov = _camera.m_Lens.FieldOfView;
+        float currentFov = _virtualCamera.m_Lens.FieldOfView;
 
         while (elapsedTime < _zoomDuration)
         {
             elapsedTime += Time.deltaTime;
-            _camera.m_Lens.FieldOfView = Mathf.Lerp(currentFov, targetFOV, elapsedTime / _zoomDuration);
+            _virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(currentFov, targetFOV, elapsedTime / _zoomDuration);
             yield return null;
         }
 
-        _camera.m_Lens.FieldOfView = targetFOV;
+        _virtualCamera.m_Lens.FieldOfView = targetFOV;
     }
 }

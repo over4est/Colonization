@@ -6,12 +6,11 @@ public class WorkerSpawner : Spawner<Worker>
 
     public override void Spawn()
     {
-        if (_pool.TryGet(out Worker worker))
-        {
-            worker.transform.position = _spawnPosition.position;
+        Worker worker = Pool.Get();
 
-            worker.gameObject.SetActive(true);
-            WorkerSpawned?.Invoke(worker);
-        }
+        worker.transform.position = SpawnPosition.position;
+
+        worker.gameObject.SetActive(true);
+        WorkerSpawned?.Invoke(worker);
     }
 }

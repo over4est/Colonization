@@ -16,18 +16,14 @@ public class ObjectPool<T> where T : MonoBehaviour
         InitPool(objectCount);
     }
 
-    public bool TryGet(out T obj)
+    public T Get()
     {
-        obj = null;
-
         if (_pool.TryPop(out var element))
         {
-            obj = element;
-
-            return true;
+            return element;
         }
 
-        return false;
+        return CreateObject();
     }
 
     public void Release(T obj)

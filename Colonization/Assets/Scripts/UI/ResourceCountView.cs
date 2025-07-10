@@ -1,18 +1,19 @@
+using UnityEngine;
+
 public class ResourceCountView : View
 {
-    private readonly string _firstTextHalf = "Рeсурсов - ";
+    [SerializeField] private ResourceStorage _resourceStorage;
 
-    private ResourceStorage _resourceStorage;
+    private readonly string _firstTextHalf = "Рeсурсов - ";
 
     private new void Awake()
     {
         base.Awake();
-        _resourceStorage = GetComponentInParent<ResourceStorage>();
     }
 
     private void Start()
     {
-        _text.text = _firstTextHalf + 0.ToString();
+        Text.text = _firstTextHalf + 0.ToString();
     }
 
     private void OnEnable()
@@ -27,6 +28,6 @@ public class ResourceCountView : View
 
     protected override void ChangeText(int newValue)
     {
-        _text.text = _firstTextHalf + newValue.ToString();
+        Text.text = _firstTextHalf + newValue.ToString();
     }
 }

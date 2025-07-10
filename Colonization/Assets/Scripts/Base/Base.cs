@@ -11,7 +11,6 @@ public class Base : MonoBehaviour, IPointerClickHandler
     [SerializeField] protected Resource _resource;
     [SerializeField] private int _startWorkersAmount;
     [SerializeField] private Transform _resourceStorage;
-    [SerializeField] private int _workerCost;
 
     private WorkerSpawner _workersSpawner;
     private ResourceScaner _scaner;
@@ -55,12 +54,6 @@ public class Base : MonoBehaviour, IPointerClickHandler
 
     private void Update()
     {
-        if (_storage.ResourceCount >= _workerCost)
-        {
-            _storage.SpendResource(_workerCost);
-            _workersSpawner.Spawn();
-        }
-
         if (_scannedResources.Count == 0)
         {
             return;
@@ -70,9 +63,9 @@ public class Base : MonoBehaviour, IPointerClickHandler
 
         if (worker != null)
         {
-            Vector3 resource = _scannedResources.Dequeue().transform.position;
+            Resource resource = _scannedResources.Dequeue();
 
-            worker.SetResourcePosition(resource);
+            worker.SetResource(resource);
             worker.SetState(WorkerState.MoveToResource);
         }
     }

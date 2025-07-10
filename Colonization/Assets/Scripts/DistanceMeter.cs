@@ -5,7 +5,7 @@ public class DistanceMeter : MonoBehaviour
 {
     [SerializeField] private Transform _startMeasurePosition;
 
-    public void MeasureDistance(Resource resource)
+    public float MeasureDistance(Resource resource)
     {
         float distance = 0f;
         NavMeshPath path = new NavMeshPath();
@@ -18,9 +18,9 @@ public class DistanceMeter : MonoBehaviour
             {
                 distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
             }
-            
-            resource.SetDistance(distance);
         }
+
+        return distance;
     }
 
     public float GetSqrDistance(Vector3 target)

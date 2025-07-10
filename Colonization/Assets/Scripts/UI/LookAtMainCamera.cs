@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LookAtMainCamera : MonoBehaviour
 {
-    Camera _camera;
+    private Camera _camera;
 
     private void Awake()
     {

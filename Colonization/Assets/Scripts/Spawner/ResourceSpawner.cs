@@ -26,22 +26,20 @@ public class ResourceSpawner : Spawner<Resource>
 
     public override void Spawn()
     {
-        if (_pool.TryGet(out Resource obj))
-        {
-            Vector3 spawnPosition = Random.onUnitSphere * _spawnDistance + _spawnPosition.position;
+        Resource obj = Pool.Get();
+        Vector3 spawnPosition = Random.onUnitSphere * _spawnDistance + SpawnPosition.position;
 
-            obj.transform.position = new Vector3(spawnPosition.x, _spawnPosition.position.y, spawnPosition.z);
-            obj.transform.rotation = Random.rotation;
-            obj.gameObject.SetActive(true);
-            obj.DispawnNeeded += Release;
-            _resources.Add(obj);
-        }
+        obj.transform.position = new Vector3(spawnPosition.x, SpawnPosition.position.y, spawnPosition.z);
+        obj.transform.rotation = Random.rotation;
+        obj.gameObject.SetActive(true);
+        obj.DispawnNeeded += Release;
+        _resources.Add(obj);
     }
 
     public void Release(Resource resource)
     {
         resource.Rigidbody.isKinematic = false;
         resource.transform.SetParent(transform);
-        _pool.Release(resource);
+        Pool.Release(resource);
     }
 }

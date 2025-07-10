@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class WorkerMover : MonoBehaviour
 {
     private NavMeshAgent _agent;

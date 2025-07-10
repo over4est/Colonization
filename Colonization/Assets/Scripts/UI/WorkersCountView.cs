@@ -1,13 +1,14 @@
+using UnityEngine;
+
 public class WorkersCountView : View
 {
-    private readonly string _firstTextHalf = "Рабочих - ";
+    [SerializeField] private Base _base;
 
-    private Base _base;
+    private readonly string _firstTextHalf = "Рабочих - ";
 
     private new void Awake()
     {
         base.Awake();
-        _base = GetComponentInParent<Base>();
     }
 
     private void OnEnable()
@@ -22,6 +23,6 @@ public class WorkersCountView : View
 
     protected override void ChangeText(int newValue)
     {
-        _text.text = _firstTextHalf + newValue.ToString();
+        Text.text = _firstTextHalf + newValue.ToString();
     }
 }

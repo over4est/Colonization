@@ -35,7 +35,7 @@ public class InputReader : MonoBehaviour
 
         Vector2 scrollValue = _playerInput.Camera.Zoom.ReadValue<Vector2>();
 
-        if (scrollValue.y != 0)
+        if (scrollValue.y != 0f)
         {
             ZoomNeeded?.Invoke(scrollValue.y);
         }

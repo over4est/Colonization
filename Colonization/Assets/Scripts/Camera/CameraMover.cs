@@ -5,7 +5,6 @@ public class CameraMover : MonoBehaviour
     [SerializeField] private float _movementSpeed;
 
     private InputReader _input;
-    private Vector2 _direction;
 
     private void Awake()
     {
