@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(WorkerMover), typeof(RandomPositioner), typeof(ResourcePicker))]
-[RequireComponent(typeof(DistanceMeter))]
+[RequireComponent(typeof(DistanceMeter), typeof(WorkerStateMachineFactory))]
 public class Worker : MonoBehaviour
 {
     [SerializeField] private float _pickUpDistance;
@@ -18,12 +18,12 @@ public class Worker : MonoBehaviour
 
     public event Action ResourceDelivered;
 
-    public WorkerState CurrentState => _machine.CurrentState;
+    public bool HaveTargetResource => _currentTargetResource != null;
     public bool IsHandsFull => _resourceInHand != null;
 
     private void Awake()
     {
-        _machine = new WorkerStateMachine(this);
+        _machine = GetComponent<WorkerStateMachineFactory>().Create(this);
         _distanceMeter = GetComponent<DistanceMeter>();
         _randomPositioner = GetComponent<RandomPositioner>();
         _mover = GetComponent<WorkerMover>();
@@ -71,14 +71,10 @@ public class Worker : MonoBehaviour
         {
             ResourceDelivered?.Invoke();
             _resourceInHand.CallDispawn();
+            _currentTargetResource = null;
             _resourceInHand = null;
         }
         else
             _mover.Move(_currentBaseStorage);
-    }
-
-    public void SetState(WorkerState state)
-    {
-        _machine.SetState(state);
     }
 }

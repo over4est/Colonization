@@ -7,7 +7,7 @@ public class ResourceScaner : MonoBehaviour
     [SerializeField] private float _scanDistance;
     [SerializeField] private LayerMask _layer;
 
-    public bool Scan(Resource resourceSample, out List<Resource> results)
+    public bool Scan(out List<Resource> results)
     {
         Collider[] tempResults = Physics.OverlapSphere(transform.position, _scanDistance, _layer.value);
 
@@ -17,7 +17,7 @@ public class ResourceScaner : MonoBehaviour
         {
             foreach (Collider collider in tempResults)
             {
-                if (collider.TryGetComponent(out Resource currentResource) && currentResource.GetType() == resourceSample.GetType())
+                if (collider.TryGetComponent(out Resource currentResource))
                 {
                     results.Add(currentResource);
                 }

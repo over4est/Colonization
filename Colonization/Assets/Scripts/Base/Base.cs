@@ -8,7 +8,6 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(ResourceStorage))]
 public class Base : MonoBehaviour, IPointerClickHandler
 {
-    [SerializeField] protected Resource _resource;
     [SerializeField] private int _startWorkersAmount;
     [SerializeField] private Transform _resourceStorage;
 
@@ -59,20 +58,19 @@ public class Base : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        Worker worker = _workers.FirstOrDefault(w => w.CurrentState == WorkerState.Wait);
+        Worker worker = _workers.FirstOrDefault(w => w.HaveTargetResource == false);
 
         if (worker != null)
         {
             Resource resource = _scannedResources.Dequeue();
 
             worker.SetResource(resource);
-            worker.SetState(WorkerState.MoveToResource);
         }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (_scaner.Scan(_resource, out List<Resource> scanResults))
+        if (_scaner.Scan(out List<Resource> scanResults))
         {
             _scannedResources = _sorter.SortByDistance(scanResults);
         }
@@ -83,7 +81,6 @@ public class Base : MonoBehaviour, IPointerClickHandler
         _workers.Add(worker);
         WorkerValueChanged?.Invoke(_workers.Count);
         worker.SetStoragePosition(_resourceStorage.position);
-        worker.SetState(WorkerState.Wait);
         worker.ResourceDelivered += AddResource;
     }
 

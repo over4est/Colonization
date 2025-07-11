@@ -10,6 +10,7 @@ public class ResourceStorage : MonoBehaviour
     public void AddResource()
     {
         _resourceCount++;
+
         ValueChanged?.Invoke(_resourceCount);
     }
 }
