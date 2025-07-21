@@ -7,5 +7,5 @@ public class ToWaitStateTransition : Transition
         _worker = worker;
     }
 
-    protected override bool CanTransit() => _worker.IsHandsFull == false;
+    protected override bool CanTransit() => _worker.IsHandsFull == false && _worker.HaveTargetFlag == false;
 }

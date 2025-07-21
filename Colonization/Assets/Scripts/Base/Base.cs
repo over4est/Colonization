@@ -2,90 +2,147 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(ResourceScaner), typeof(ResourceSorter), typeof(WorkerSpawner))]
-[RequireComponent(typeof(ResourceStorage))]
-public class Base : MonoBehaviour, IPointerClickHandler
+[RequireComponent(typeof(ResourceStorage), typeof(BaseStateMachineFactory), typeof(FlagBuilder))]
+[RequireComponent(typeof(WorkerSpawner))]
+public class Base : MonoBehaviour, IClickable
 {
-    [SerializeField] private int _startWorkersAmount;
-    [SerializeField] private Transform _resourceStorage;
+    [SerializeField] private int _hireCost = 3;
+    [SerializeField] private int _buildCost = 5;
 
+    private Transform _resourceStorageTransform;
+    private Resource _currentResource;
+    private FlagBuilder _flagBuilder;
+    private BaseStateMachine _stateMachine;
     private WorkerSpawner _workersSpawner;
-    private ResourceScaner _scaner;
-    private ResourceSorter _sorter;
     private ResourceStorage _storage;
-    private Queue<Resource> _scannedResources = new Queue<Resource>();
     private List<Worker> _workers = new List<Worker>();
+    private Flag _flag;
+    private bool _isFlagPlaced = false;
 
+    public event Action<Base> ResourceNeeded;
     public event Action<int> WorkerValueChanged;
+    public event Action<Vector3, Worker> WorkerReachedFlag;
+
+    public bool IsFlagPlaced => _isFlagPlaced;
 
     private void Awake()
     {
-        _scaner = GetComponent<ResourceScaner>();
-        _sorter = GetComponent<ResourceSorter>();
+        _stateMachine = GetComponent<BaseStateMachineFactory>().Create(this);
+        _flagBuilder = GetComponent<FlagBuilder>();
         _workersSpawner = GetComponent<WorkerSpawner>();
         _storage = GetComponent<ResourceStorage>();
+        _resourceStorageTransform = GetComponentInChildren<ResourceStoragePoint>().transform;
     }
 
     private void OnEnable()
     {
+        _flagBuilder.FlagPlaced += SetFlag;
         _workersSpawner.WorkerSpawned += SetupWorker;
     }
 
     private void OnDisable()
     {
+        _flagBuilder.FlagPlaced -= SetFlag;
         _workersSpawner.WorkerSpawned -= SetupWorker;
 
         foreach (Worker worker in _workers)
         {
             worker.ResourceDelivered -= AddResource;
-        }
-    }
-
-    private void Start()
-    {
-        for (int i = 0; i < _startWorkersAmount; i++)
-        {
-            _workersSpawner.Spawn();
+            worker.FlagReached -= OnFlagReached;
         }
     }
 
     private void Update()
     {
-        if (_scannedResources.Count == 0)
-        {
-            return;
-        }
-
-        Worker worker = _workers.FirstOrDefault(w => w.HaveTargetResource == false);
-
-        if (worker != null)
-        {
-            Resource resource = _scannedResources.Dequeue();
-
-            worker.SetResource(resource);
-        }
+        _stateMachine.Update();
+        FarmResource();
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void HireWorker()
     {
-        if (_scaner.Scan(out List<Resource> scanResults))
+        if (_storage.ResourceCount >= _hireCost)
         {
-            _scannedResources = _sorter.SortByDistance(scanResults);
+            _storage.SpendResource(_hireCost);
+            SpawnWorker();
         }
     }
 
-    private void SetupWorker(Worker worker)
+    public void SendWorkerToBuild()
+    {
+        if (_storage.ResourceCount >= _buildCost && TryGetFreeWorker(out Worker worker))
+        {
+            worker.SetTargetFlag(_flag);
+            _storage.SpendResource(_buildCost);
+
+            _isFlagPlaced = false;
+        }
+    }
+
+    public void OnClick()
+    {
+        if (_workers.Count <= 1)
+            return;
+
+        if (_flagBuilder.IsBuildModeEnable)
+            _flagBuilder.DisableBuildMode();
+        else
+            _flagBuilder.EnableBuildMode();
+    }
+
+    public void InitFlagBuilder(InputReader inputReader) => _flagBuilder.Init(inputReader);
+
+    public void SpawnWorker() => _workersSpawner.Spawn();
+
+    public void SetCurrentResource(Resource resource) => _currentResource = resource;
+
+    public void SetupWorker(Worker worker)
     {
         _workers.Add(worker);
         WorkerValueChanged?.Invoke(_workers.Count);
-        worker.SetStoragePosition(_resourceStorage.position);
+        worker.SetStoragePosition(_resourceStorageTransform.position);
         worker.ResourceDelivered += AddResource;
+        worker.FlagReached += OnFlagReached;
     }
 
-    private void AddResource()
+    private void SetFlag(Flag flag)
     {
-        _storage.AddResource();
+        _flag = flag;
+        _isFlagPlaced = true;
+    }
+
+    private void FarmResource()
+    {
+        if (TryGetFreeWorker(out Worker worker))
+        {
+            if (_currentResource == null)
+                ResourceNeeded?.Invoke(this);
+            else
+            {
+                worker.SetResource(_currentResource);
+
+                _currentResource = null;
+            }
+        }
+    }
+
+    private void AddResource() => _storage.AddResource();
+
+    private void OnFlagReached(Vector3 position, Worker worker)
+    {
+        _workers.Remove(worker);
+        WorkerValueChanged?.Invoke(_workers.Count);
+
+        worker.ResourceDelivered -= AddResource;
+        worker.FlagReached -= OnFlagReached;
+
+        WorkerReachedFlag?.Invoke(position, worker);
+    }
+
+    private bool TryGetFreeWorker(out Worker worker)
+    {
+        worker = _workers.FirstOrDefault(w => w.IsFree);
+
+        return worker != null;
     }
 }

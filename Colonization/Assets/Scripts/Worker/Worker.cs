@@ -7,6 +7,7 @@ public class Worker : MonoBehaviour
 {
     [SerializeField] private float _pickUpDistance;
 
+    private Flag _currentTargetFlag;
     private RandomPositioner _randomPositioner;
     private Vector3 _currentBaseStorage;
     private Resource _currentTargetResource;
@@ -17,7 +18,10 @@ public class Worker : MonoBehaviour
     private ResourcePicker _resourcePicker;
 
     public event Action ResourceDelivered;
+    public event Action<Vector3, Worker> FlagReached;
 
+    public bool IsFree => _machine.CurrentState is WaitState;
+    public bool HaveTargetFlag => _currentTargetFlag != null;
     public bool HaveTargetResource => _currentTargetResource != null;
     public bool IsHandsFull => _resourceInHand != null;
 
@@ -27,6 +31,7 @@ public class Worker : MonoBehaviour
         _distanceMeter = GetComponent<DistanceMeter>();
         _randomPositioner = GetComponent<RandomPositioner>();
         _mover = GetComponent<WorkerMover>();
+        _mover.enabled = false;
         _resourcePicker = GetComponent<ResourcePicker>();
     }
 
@@ -35,29 +40,32 @@ public class Worker : MonoBehaviour
         _machine.Update();
     }
 
-    public void SetStoragePosition(Vector3 position)
+    public void MoveToFlag()
     {
-        _currentBaseStorage = position;
-    }
+        float sqrDistance = _distanceMeter.GetSqrDistance(_currentTargetFlag.transform.position);
 
-    public void SetResource(Resource resource)
-    {
-        _currentTargetResource = resource;
+        if (sqrDistance <= _pickUpDistance)
+        {
+            FlagReached?.Invoke(_currentTargetFlag.transform.position, this);
+            _currentTargetFlag.CallDisable();
+
+            _currentTargetFlag = null;
+        }
+        else
+            _mover.Move(_currentTargetFlag.transform.position);
     }
 
     public void WaitForCommand()
     {
         if (_mover.Agent.hasPath == false && _randomPositioner.TryGetRandomPositionInRadius(_currentBaseStorage, out Vector3 position))
-        {
             _mover.Move(position);
-        }
     }
 
     public void MoveToResource()
     {
         float sqrDistance = _distanceMeter.GetSqrDistance(_currentTargetResource.transform.position);
 
-        if (sqrDistance < _pickUpDistance)
+        if (sqrDistance <= _pickUpDistance)
             _resourceInHand = _resourcePicker.PickUpResource(_currentTargetResource);
         else
             _mover.Move(_currentTargetResource.transform.position);
@@ -71,10 +79,16 @@ public class Worker : MonoBehaviour
         {
             ResourceDelivered?.Invoke();
             _resourceInHand.CallDispawn();
-            _currentTargetResource = null;
             _resourceInHand = null;
+            _currentTargetResource = null;
         }
         else
             _mover.Move(_currentBaseStorage);
     }
+
+    public void SetTargetFlag(Flag flag) => _currentTargetFlag = flag;
+
+    public void SetStoragePosition(Vector3 position) => _currentBaseStorage = position;
+
+    public void SetResource(Resource resource) => _currentTargetResource = resource;
 }

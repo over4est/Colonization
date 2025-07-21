@@ -157,6 +157,7 @@ GameObject:
   - component: {fileID: 3148236232289747628}
   - component: {fileID: 1224883935323490181}
   - component: {fileID: 4889036961587512207}
+  - component: {fileID: 3617628458233876380}
   m_Layer: 0
   m_Name: Worker
   m_TagString: Untagged
@@ -370,6 +371,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _startMeasurePosition: {fileID: 7394179544095272525}
+--- !u!114 &3617628458233876380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2670359608944029826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f2dd3192c00c6478bbb4ba21fd0ede, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3550259777117350369
 GameObject:
   m_ObjectHideFlags: 0
@@ -536,7 +549,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.016666668
+  m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0

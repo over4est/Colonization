@@ -7,5 +7,5 @@ public class ToMoveToResourceTransition : Transition
         _worker = worker;
     }
 
-    protected override bool CanTransit() => _worker.IsHandsFull == false && _worker.HaveTargetResource ;
+    protected override bool CanTransit() => _worker.HaveTargetResource;
 }
