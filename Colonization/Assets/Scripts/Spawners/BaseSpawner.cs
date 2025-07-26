@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class BaseSpawner : Spawner<Base>
@@ -24,41 +23,31 @@ public class BaseSpawner : Spawner<Base>
 
     private void OnDisable()
     {
-        foreach (Base @base in _spawnedBases)
-        {
-            @base.WorkerReachedFlag -= OnFlagReached;
-            @base.ResourceNeeded -= GetNearestResource;
-        }
+        foreach(Base @base in _spawnedBases)
+            @base.FlagReached -= SpawnOnPositionWithWorker;
     }
 
-    public override void Spawn()
+    public override Base Spawn()
     {
         Base @base = Pool.Get();
 
         @base.gameObject.SetActive(true);
         _spawnedBases.Add(@base);
-        @base.WorkerReachedFlag += OnFlagReached;
-        @base.ResourceNeeded += GetNearestResource;
-        @base.InitFlagBuilder(_inputReader);
+        @base.FlagReached += SpawnOnPositionWithWorker;
+        @base.Init(_inputReader, _resourceLocator);
 
         _spawnPosition.y = _ySpawnPosition;
         @base.transform.position = _spawnPosition;
+
+        return @base;
     }
 
-    private void OnFlagReached(Vector3 newPosition, Worker worker)
+    private void SpawnOnPositionWithWorker(Vector3 position, Worker worker)
     {
-        SetSpawnPosition(newPosition);
-        Spawn();
-        SetupWorker(_spawnedBases.Last(), worker);
-    }
+        _spawnPosition = position;
 
-    private void SetSpawnPosition(Vector3 newPosition) => _spawnPosition = newPosition;
+        Base @base = Spawn();
 
-    private void SetupWorker(Base @base, Worker worker) => @base.SetupWorker(worker);
-
-    private void GetNearestResource(Base @base)
-    {
-        if (_resourceLocator.TryGetNearestResource(out Resource resource, @base.transform.position))
-            @base.SetCurrentResource(resource);
+        @base.HireWorker(worker);
     }
 }

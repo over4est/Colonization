@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(AreaScanner), typeof(FlagColorChanger))]
-public class FlagBuilder : MonoBehaviour
+public class FlagBuilder : MonoBehaviour, IClickable
 {
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private Flag _prefab;
@@ -16,48 +16,43 @@ public class FlagBuilder : MonoBehaviour
     private FlagColorChanger _colorChanger;
     private bool _isFlagPlaced = false;
 
-    public bool IsBuildModeEnable => _isBuildModeEnable;
-
     public event Action<Flag> FlagPlaced;
 
-    private void OnDisable()
+    public void OnClick()
     {
-        if (_flag != null)
-            _flag.DisableNeeded -= DisableFlag;
+        if (_isBuildModeEnable)
+            DisableBuildMode();
+        else
+            EnableBuildMode();
     }
 
-    public void EnableBuildMode()
+    public void Init(InputReader inputReader)
+    {
+        _flag = InitFlag();
+        _colorChanger = GetComponent<FlagColorChanger>();
+        _areaScanner = GetComponent<AreaScanner>();
+        _inputReader = inputReader;
+    }
+
+    private void EnableBuildMode()
     {
         _inputReader.ClickDetected += Build;
         _inputReader.WorldPointerMoved += MovePreviewToMouse;
         _isBuildModeEnable = true;
         _isFlagPlaced = false;
 
-        _flag.gameObject.SetActive(true);
+        if (_flag.gameObject.activeSelf == false)
+            _flag.gameObject.SetActive(true);
     }
 
-    public void DisableBuildMode()
+    private void DisableBuildMode()
     {
         _inputReader.ClickDetected -= Build;
         _inputReader.WorldPointerMoved -= MovePreviewToMouse;
         _isBuildModeEnable = false;
 
         if (_isFlagPlaced == false)
-            DisableFlag();
-    }
-
-    public void Init(InputReader inputReader)
-    {
-        _flag = InitFlag();
-        _flag.DisableNeeded += DisableFlag;
-        _colorChanger = GetComponent<FlagColorChanger>();
-        _areaScanner = GetComponent<AreaScanner>();
-        _inputReader = inputReader;
-    }
-
-    private void DisableFlag()
-    {
-        _flag.gameObject.SetActive(false);
+            _flag.gameObject.SetActive(false);
     }
 
     private void Build()

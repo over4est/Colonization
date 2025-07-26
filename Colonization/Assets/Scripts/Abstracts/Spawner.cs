@@ -13,5 +13,5 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
         Pool = new ObjectPool<T>(Prefab, _poolCapacity, transform);
     }
 
-    public abstract void Spawn();
+    public abstract T Spawn();
 }

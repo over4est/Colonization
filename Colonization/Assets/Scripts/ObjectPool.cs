@@ -32,6 +32,8 @@ public class ObjectPool<T> where T : MonoBehaviour
         _pool.Push(obj);
     }
 
+    public List<T> GetAllObjects() => new List<T>(_objects);
+
     private void InitPool(int count)
     {
         _pool = new Stack<T>();

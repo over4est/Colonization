@@ -6,14 +6,25 @@ public class ResourceStorage : MonoBehaviour
     private int _resourceCount = 0;
 
     public event Action<int> ValueChanged;
+    public event Action<Worker> WorkerBack;
 
     public int ResourceCount => _resourceCount;
 
-    public void AddResource()
+    private void OnTriggerStay(Collider other)
     {
-        _resourceCount++;
+        if (other.TryGetComponent(out Worker worker) && worker.CurrentBasePosition == transform.position)
+        {
+            if (worker.HaveResourceInHand)
+            {
+                AddResource();
+                worker.FreeHands();
+            }
 
-        ValueChanged?.Invoke(_resourceCount);
+            if (worker.IsFree == false)
+                return;
+
+            WorkerBack?.Invoke(worker);
+        }
     }
 
     public void SpendResource(int value)
@@ -24,5 +35,12 @@ public class ResourceStorage : MonoBehaviour
 
             ValueChanged?.Invoke(_resourceCount);
         }
+    }
+
+    private void AddResource()
+    {
+        _resourceCount++;
+
+        ValueChanged?.Invoke(_resourceCount);
     }
 }

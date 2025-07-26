@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class WorkersCountView : View
 {
-    [SerializeField] private Base _base;
+    [SerializeField] private WorkersEmployer _employer;
 
     private readonly string _firstTextHalf = "Рабочих - ";
 
@@ -13,12 +13,12 @@ public class WorkersCountView : View
 
     private void OnEnable()
     {
-        _base.WorkerValueChanged += ChangeText;
+        _employer.WorkersAmountChanged += ChangeText;
     }
 
     private void OnDisable()
     {
-        _base.WorkerValueChanged -= ChangeText;
+        _employer.WorkersAmountChanged -= ChangeText;
     }
 
     protected override void ChangeText(int newValue)

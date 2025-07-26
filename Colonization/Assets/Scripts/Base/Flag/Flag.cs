@@ -5,7 +5,7 @@ public class Flag : MonoBehaviour
 {
     private MeshRenderer _meshRenderer;
 
-    public event Action DisableNeeded;
+    public event Action<Worker> FlagReached;
 
     public Material Material => _meshRenderer.material;
 
@@ -14,5 +14,13 @@ public class Flag : MonoBehaviour
         _meshRenderer = GetComponentInChildren<MeshRenderer>();
     }
 
-    public void CallDisable() => DisableNeeded?.Invoke();
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Worker worker) && worker.HaveTargetFlag)
+        {
+            worker.SetTargetFlag(null);
+            FlagReached?.Invoke(worker);
+            gameObject.SetActive(false);
+        }
+    }
 }

@@ -23,5 +23,5 @@ public class ResourceLocator : MonoBehaviour
         return true;
     }
 
-    public void SetFreeResources(List<Resource> resources) => _freeResources = resources;
+    public void AddFreeResources(Resource resource) => _freeResources.Add(resource);
 }

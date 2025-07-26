@@ -1,15 +1,15 @@
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(ResourceLocator))]
 public class ResourceSpawner : Spawner<Resource>
 {
-    [SerializeField] private Transform _spawnPosition;
     [SerializeField] private int _startSpawnAmount;
+    [SerializeField] private float _spawnDelay;
+    [SerializeField] private Transform _spawnPosition;
     [SerializeField] private float _spawnDistance;
 
     private ResourceLocator _resourceLocator;
-    private List<Resource> _resources = new List<Resource>();
 
     protected new void Awake()
     {
@@ -21,22 +21,18 @@ public class ResourceSpawner : Spawner<Resource>
     private void Start()
     {
         for (int i = 0; i < _startSpawnAmount; i++)
-        {
             Spawn();
-        }
 
-        _resourceLocator.SetFreeResources(new List<Resource>(_resources));
+        StartCoroutine(DelaySpawn(_spawnDelay));
     }
 
     private void OnDisable()
     {
-        foreach (Resource resource in _resources)
-        {
+        foreach (Resource resource in Pool.GetAllObjects())
             resource.DispawnNeeded -= Release;
-        }
     }
 
-    public override void Spawn()
+    public override Resource Spawn()
     {
         Resource obj = Pool.Get();
         Vector3 spawnPosition = Random.onUnitSphere * _spawnDistance + _spawnPosition.position;
@@ -45,10 +41,24 @@ public class ResourceSpawner : Spawner<Resource>
         obj.transform.rotation = Random.rotation;
         obj.gameObject.SetActive(true);
         obj.DispawnNeeded += Release;
-        _resources.Add(obj);
+        _resourceLocator.AddFreeResources(obj);
+
+        return obj;
     }
 
-    public void Release(Resource resource)
+    private IEnumerator DelaySpawn(float spawnDelay)
+    {
+        WaitForSeconds wait = new WaitForSeconds(spawnDelay);
+
+        while (enabled)
+        {
+            yield return wait;
+
+            Spawn();
+        }
+    }
+
+    private void Release(Resource resource)
     {
         resource.Rigidbody.isKinematic = false;
         resource.transform.SetParent(transform);
